@@ -1,43 +1,44 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, TextAreaField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField
 from wtforms.validators import DataRequired, Email, Length, EqualTo, ValidationError
 from models import User
 
 class LoginForm(FlaskForm):
-    username = StringField('Username', validators=[DataRequired()])
-    password = PasswordField('Password', validators=[DataRequired()])
-    submit = SubmitField('Sign In')
+    username = StringField('用户名', validators=[DataRequired()])
+    password = PasswordField('密码', validators=[DataRequired()])
+    remember_me = BooleanField('记住我')
+    submit = SubmitField('登录')
 
 class RegistrationForm(FlaskForm):
-    username = StringField('Username', validators=[DataRequired(), Length(min=2, max=20)])
-    email = StringField('Email', validators=[DataRequired(), Email()])
-    password = PasswordField('Password', validators=[DataRequired(), Length(min=6)])
-    password2 = PasswordField('Repeat Password', validators=[DataRequired(), EqualTo('password')])
-    submit = SubmitField('Register')
+    username = StringField('用户名', validators=[DataRequired(), Length(min=2, max=20)])
+    email = StringField('邮箱', validators=[DataRequired(), Email()])
+    password = PasswordField('密码', validators=[DataRequired(), Length(min=6)])
+    password2 = PasswordField('确认密码', validators=[DataRequired(), EqualTo('password')])
+    submit = SubmitField('注册')
 
     def validate_username(self, username):
         user = User.query.filter_by(username=username.data).first()
         if user is not None:
-            raise ValidationError('Please use a different username.')
+            raise ValidationError('该用户名已被使用')
 
     def validate_email(self, email):
         user = User.query.filter_by(email=email.data).first()
         if user is not None:
-            raise ValidationError('Please use a different email address.')
+            raise ValidationError('该邮箱已被注册')
 
 class ChangePasswordForm(FlaskForm):
-    current_password = PasswordField('Current Password', validators=[DataRequired()])
-    new_password = PasswordField('New Password', validators=[DataRequired()])
-    new_password2 = PasswordField('Repeat New Password', validators=[DataRequired(), EqualTo('new_password')])
-    submit = SubmitField('Change Password')
+    current_password = PasswordField('当前密码', validators=[DataRequired()])
+    new_password = PasswordField('新密码', validators=[DataRequired(), Length(min=6)])
+    new_password2 = PasswordField('确认新密码', validators=[DataRequired(), EqualTo('new_password')])
+    submit = SubmitField('修改密码')
 
 class PostForm(FlaskForm):
-    title = StringField('Title', validators=[DataRequired(), Length(min=1, max=140)])
-    content = TextAreaField('Content', validators=[DataRequired()])
-    submit = SubmitField('Submit')
+    title = StringField('标题', validators=[DataRequired(), Length(min=1, max=140)])
+    content = TextAreaField('内容', validators=[DataRequired()])
+    submit = SubmitField('发布')
 
 class CommentForm(FlaskForm):
-    content = TextAreaField('Comment', validators=[DataRequired()])
-    display_name = StringField('Display Name', validators=[DataRequired(), Length(min=2, max=64)])
-    email = StringField('Email', validators=[DataRequired(), Email()])
-    submit = SubmitField('Submit Comment') 
+    display_name = StringField('显示名称', validators=[DataRequired(), Length(min=2, max=64)])
+    email = StringField('邮箱', validators=[DataRequired(), Email()])
+    content = TextAreaField('评论内容', validators=[DataRequired()])
+    submit = SubmitField('提交评论') 
